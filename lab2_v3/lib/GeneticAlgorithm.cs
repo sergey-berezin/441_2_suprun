@@ -1,10 +1,5 @@
 ﻿namespace llilyshkall.GeneticAlgorithm;
 
-public static class Rnd
-{
-  public static readonly Random Random = new Random();
-}
-
 public class Point(int x = 0, int y = 0)
 {
     public int X { get; set; } = x;
@@ -55,9 +50,10 @@ public class Rectangle
   }
   public void RandomMove(int dx, int dy)
   {
-    LeftBottom.X += Rnd.Random.Next(2 * dx) - dx;
+    Random random = new Random();
+    LeftBottom.X += random.Next(2 * dx) - dx;
     if (LeftBottom.X < 0) LeftBottom.X = 0;
-    LeftBottom.Y += Rnd.Random.Next(2 * dy) - dy;
+    LeftBottom.Y += random.Next(2 * dy) - dy;
     if (LeftBottom.Y < 0) LeftBottom.Y = 0;
   }
   public bool CheckNoOverlap(Rectangle other)
@@ -74,14 +70,15 @@ public class Rectangle
   }
   public void RandomPosition(int maxX, int maxY)
   {
-    LeftBottom.X = Rnd.Random.Next(maxX);
-    LeftBottom.Y = Rnd.Random.Next(maxY);
+    Random random = new Random();
+    LeftBottom.X = random.Next(maxX);
+    LeftBottom.Y = random.Next(maxY);
   }
 }
 
 public class Chromosome
 {
-  private Rectangle[] Rectangles {get;set;}
+  public Rectangle[] Rectangles {get;set;}
   private int Length => Rectangles.Length;
   public Chromosome(Sizes[] sizes)
   {
@@ -159,11 +156,6 @@ public class Chromosome
 
     for (int i = 0;i < Length;i++)
     {
-      if (Random.Shared.NextDouble() < mutationRate)
-      {
-        Rectangles[i].Rotate();
-        if (!CheckNoOverlap(Length)) Rectangles[i].Rotate();
-      }
       if (Random.Shared.NextDouble() < mutationRate)
       {
         Rectangles[i].RandomMove(maxLength, maxWidth);
@@ -267,7 +259,7 @@ public class GeneticAlgorithm
   {
     _populations = [new Chromosome(sizes)];
     // создаем планировки
-    for (int i = 0; i < PopulationSize; i++)
+    for (int i = 0; i < PopulationSize - 1; i++)
       _populations.Add(new Chromosome(sizes));
       
     // начальная генерация (рандомизация) планировок, параллельно
@@ -313,7 +305,7 @@ public class GeneticAlgorithm
     _argBestArea = 0;
     for (int i = 0; i < _populations.Count; i++)
     {
-      if (_bestArea < _areas[i])
+      if (_bestArea > _areas[i])
       {
         _bestArea = _areas[i];
         _argBestArea = i;
@@ -325,7 +317,8 @@ public class GeneticAlgorithm
     CalculateAreas();
     for (int i = _populations.Count - 1; i >= 0; i--)
     {
-      double p = Rnd.Random.NextDouble();
+      Random random = new Random();
+      double p = random.NextDouble();
       double q = (double)_bestArea / _areas[i];
       if (p > q)
       {
@@ -356,5 +349,22 @@ public class GeneticAlgorithm
     }
     
     Task.WaitAll(tasks);
+  }
+  public Chromosome BestChromosome()
+  {
+    CalculateAreas();
+    Chromosome ret = new Chromosome(_populations[_argBestArea]);
+    Point min = new Point(ret.Rectangles[0].LeftBottom);
+    foreach (var r in ret.Rectangles)
+    {
+      min.X = Math.Min(r.LeftBottom.X, min.X);
+      min.Y = Math.Min(r.LeftBottom.Y, min.Y);
+    }
+    foreach (var r in ret.Rectangles)
+    {
+      r.LeftBottom.X -= min.X;
+      r.LeftBottom.Y -= min.Y;
+    }
+    return ret;
   }
 }

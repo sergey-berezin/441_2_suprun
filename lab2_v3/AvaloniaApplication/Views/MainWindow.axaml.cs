@@ -44,35 +44,50 @@ public partial class MainWindow : Window
     {
         // Очищаем Canvas перед рисованием
         DrawingCanvas.Children.Clear();
-        List<Chromosome> p = ((MainWindowViewModel)DataContext).Ga.Populations;
-        int idx = 0;
-        int bestArea = p[0].Area;
-        for (int i = 1; i < p.Count; i++)
+        var geneticAlgorithm = ((MainWindowViewModel)DataContext!).Ga;
+        if (geneticAlgorithm == null) return;
+    
+        Chromosome p = geneticAlgorithm.BestChromosome();
+        Point max = new Point(0, 0);
+        foreach (Rectangle rectangle in p.Rectangles)
         {
-            if (p[i].Area < bestArea)
-            {
-                idx = i;
-                bestArea = p[i].Area;
-            }
+            max.X = Math.Max(max.X, rectangle.LeftBottom.X + rectangle.Sizes.Length);
+            max.Y = Math.Max(max.Y, rectangle.LeftBottom.Y + rectangle.Sizes.Width);
         }
-
-        for (int i = 0; i < p[idx].Rectangles.Length; i++)
+    
+        foreach (var r in p.Rectangles)
         {
             var rect = new Avalonia.Controls.Shapes.Rectangle
             {
-                Width = p[idx].Rectangles[i].Sizes.Width*10,
-                Height = p[idx].Rectangles[i].Sizes.Length*10,
+                Width = r.Sizes.Length * 30,
+                Height = r.Sizes.Width * 30,
                 Fill = Brushes.Blue, // Цвет заливки
                 Stroke = Brushes.Black, // Цвет рамки
                 StrokeThickness = 2
             };
 
             // Устанавливаем позицию прямоугольника
-            Canvas.SetLeft(rect, p[idx].Rectangles[i].LeftBottom.X*10);
-            Canvas.SetTop(rect, p[idx].Rectangles[i].LeftBottom.Y*10);
+            Canvas.SetLeft(rect, r.LeftBottom.X * 30);
+            Canvas.SetTop(rect, r.LeftBottom.Y * 30);
 
             // Добавляем прямоугольник на Canvas
             DrawingCanvas.Children.Add(rect);
         }
+        
+    }
+
+
+    private void Clear_Click(object? sender, RoutedEventArgs e)
+    {
+        DrawingCanvas.Children.Clear();
+        var viewModel = DataContext as MainWindowViewModel;
+        viewModel?.Reset();
+    }
+
+    private void AddRectangle_Click(object? sender, RoutedEventArgs e)
+    {
+        var viewModel = DataContext as MainWindowViewModel;
+        viewModel?.AddRectangle((int)Length.Value, (int)Width.Value);
+        
     }
 }
