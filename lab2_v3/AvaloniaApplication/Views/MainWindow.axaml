@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaApplication.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="AvaloniaApplication.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="AvaloniaApplication">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="*,2*" RowDefinitions="*">
+        <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Условие"></TextBlock>
+            
+            <ListBox x:Name="Rectangles" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Sizes}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" /> <!-- Для TextBlock, занимает оставшееся пространство -->
+                                <ColumnDefinition Width="Auto" /> <!-- Для кнопки, занимает минимальное пространство -->
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} x {1}">
+                                        <Binding Path="Length" />
+                                        <Binding Path="Width" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <Button Grid.Column="1" Content="X" Click="Button_OnClick" DataContext="{Binding}"/> 
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            
+            <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="*,*,*" RowDefinitions="*,*">
+                <NumericUpDown Grid.Row="0" Grid.Column="0" x:Name="Width" Minimum="1" Maximum="10" 
+                               Value="1"
+                               Increment="1"></NumericUpDown>
+                <NumericUpDown Grid.Row="0" Grid.Column="1" x:Name="Length" Minimum="1" Maximum="10"
+                               Value="1"
+                               Increment="1"></NumericUpDown>
+                <Button Grid.Row="0" Grid.Column="2" Content="Добавить" HorizontalAlignment="Stretch" Click="AddRectangle_Click"></Button>
+                <Button Grid.Row="1" Grid.Column="0" Content="Запуск" HorizontalAlignment="Stretch" Click="Button_NewPopulation"></Button>
+                <Button Grid.Row="1" Grid.Column="1" Content="Следующее поколение" HorizontalAlignment="Stretch" Click="Button_NewGeneration"></Button>
+                <Button Grid.Row="1" Grid.Column="2" Content="Очистить поле" HorizontalAlignment="Stretch" Click="Clear_Click"></Button>
+            </Grid>
+            
+        </Grid>
+        
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Решение"></TextBlock>
+
+            <Canvas x:Name="DrawingCanvas" Grid.Column="0" Grid.Row="1"></Canvas>
+            
+            <Grid Grid.Column="0" Grid.Row="2" ColumnDefinitions="*,*,*,*">
+                <TextBlock Grid.Column="0" Text="Поколение:" HorizontalAlignment="Stretch"></TextBlock>
+                <TextBlock Grid.Column="1" Text="{Binding Generation}"  HorizontalAlignment="Stretch"></TextBlock>
+                <TextBlock Grid.Column="2" Text="Площадь:" HorizontalAlignment="Stretch"></TextBlock>
+                <TextBlock Grid.Column="3" Text="{Binding Area}" HorizontalAlignment="Stretch"></TextBlock>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>
