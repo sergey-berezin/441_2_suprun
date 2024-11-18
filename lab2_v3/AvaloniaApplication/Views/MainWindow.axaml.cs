@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using System.Linq;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using AvaloniaApplication.ViewModels;
 using llilyshkall.GeneticAlgorithm;
 
@@ -17,7 +18,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = new MainWindowViewModel();
     }
-
+    private BackgroundProcess _backgroundProcess;
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is Button { DataContext: Sizes item })
@@ -36,9 +37,13 @@ public partial class MainWindow : Window
 
     private void Button_NewGeneration(object? sender, RoutedEventArgs e)
     {
-        var viewModel = DataContext as MainWindowViewModel;
-        viewModel?.NewGeneration();
-        DrawRectangles_Click();
+        if (_backgroundProcess == null || !_backgroundProcess.IsRunning)
+        {
+            _backgroundProcess = new BackgroundProcess();
+            var viewModel = DataContext as MainWindowViewModel;
+            _backgroundProcess.Start(viewModel, DrawRectangles_Click);
+        }
+        
     }
     private void DrawRectangles_Click()
     {
@@ -59,16 +64,16 @@ public partial class MainWindow : Window
         {
             var rect = new Avalonia.Controls.Shapes.Rectangle
             {
-                Width = r.Sizes.Length * 30,
-                Height = r.Sizes.Width * 30,
+                Width = r.Sizes.Length * 10,
+                Height = r.Sizes.Width * 10,
                 Fill = Brushes.Blue, // Цвет заливки
                 Stroke = Brushes.Black, // Цвет рамки
                 StrokeThickness = 2
             };
 
             // Устанавливаем позицию прямоугольника
-            Canvas.SetLeft(rect, r.LeftBottom.X * 30);
-            Canvas.SetTop(rect, r.LeftBottom.Y * 30);
+            Canvas.SetLeft(rect, r.LeftBottom.X * 10);
+            Canvas.SetTop(rect, r.LeftBottom.Y * 10);
 
             // Добавляем прямоугольник на Canvas
             DrawingCanvas.Children.Add(rect);
@@ -79,6 +84,7 @@ public partial class MainWindow : Window
 
     private void Clear_Click(object? sender, RoutedEventArgs e)
     {
+        if (_backgroundProcess != null && _backgroundProcess.IsRunning) _backgroundProcess.Stop();
         DrawingCanvas.Children.Clear();
         var viewModel = DataContext as MainWindowViewModel;
         viewModel?.Reset();
@@ -86,6 +92,9 @@ public partial class MainWindow : Window
 
     private void AddRectangle_Click(object? sender, RoutedEventArgs e)
     {
+        decimal? l = Length.Value, w = Width.Value;
+        if (l % 1 != 0 || l <= 0 || l >= 11 ||
+            w % 1 != 0 || w <= 0 || w >= 11) return;
         var viewModel = DataContext as MainWindowViewModel;
         viewModel?.AddRectangle((int)Length.Value, (int)Width.Value);
         
