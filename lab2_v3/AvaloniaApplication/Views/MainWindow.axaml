@@ -15,7 +15,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="*,2*" RowDefinitions="*">
+    <Grid ColumnDefinitions="*,2*,*" RowDefinitions="*">
         <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
             <TextBlock Grid.Column="0" Grid.Row="0" Text="Условие"></TextBlock>
             
@@ -68,6 +68,32 @@
                 <TextBlock Grid.Column="2" Text="Площадь:" HorizontalAlignment="Stretch"></TextBlock>
                 <TextBlock Grid.Column="3" Text="{Binding Area}" HorizontalAlignment="Stretch"></TextBlock>
             </Grid>
+        </Grid>
+        
+        <Grid Column="2" RowDefinitions="Auto,*,Auto,Auto" ColumnDefinitions="*">
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Сохраненные задачи"></TextBlock>
+            
+            <ListBox x:Name="Tasks" Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Tasks}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <TextBlock Grid.Column="0">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}">
+                                        <Binding Path="Name" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <Button Grid.Column="1" Content="Load" Click="Button_Load" DataContext="{Binding}"/> 
+                            <Button Grid.Column="2" Content="X" Click="Button_Del" DataContext="{Binding}"/> 
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            
+            <TextBox x:Name="TextBoxName" Grid.Column="0"  Grid.Row="2" Watermark="Enter your name"></TextBox>
+            
+            <Button Grid.Column="0" Grid.Row="3" Content="Save" HorizontalAlignment="Stretch" Click="Save_Click"></Button>
         </Grid>
     </Grid>
 
