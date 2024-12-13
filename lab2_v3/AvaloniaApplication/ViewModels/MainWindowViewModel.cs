@@ -25,6 +25,27 @@ using System.Threading.Tasks;
 public class MainWindowViewModel : ReactiveObject
 {
     public ObservableCollection<Sizes> Sizes { get; }
+
+    public ObservableCollection<Task> _tasks;
+    public ObservableCollection<Task> Tasks
+    {
+        get
+        {
+            var ret = new ObservableCollection<Task>();
+            using (ViewModelBase db = new ViewModelBase())
+            {
+                var tasks = db.Tasks.ToList();
+                foreach (Task t in tasks)
+                {
+                    ret.Add(t);
+                }
+            }
+
+            return ret;
+        }
+        set => this.RaiseAndSetIfChanged(ref _tasks, value);
+    }
+
     public GeneticAlgorithm? Ga = null;
     private int _generation;
     public int Generation
@@ -39,6 +60,7 @@ public class MainWindowViewModel : ReactiveObject
         get => _area;
         set => this.RaiseAndSetIfChanged(ref _area, value); 
     }
+    
     public MainWindowViewModel()
     {
         Sizes = new ObservableCollection<Sizes>
@@ -57,6 +79,19 @@ public class MainWindowViewModel : ReactiveObject
         if (Sizes.Contains(item))
         {
             Sizes.Remove(item);
+        }
+    }
+
+    public void UpdateTask()
+    {
+        Tasks = new ObservableCollection<Task>();
+        using (ViewModelBase db = new ViewModelBase())
+        {
+            var tasks = db.Tasks.ToList();
+            foreach (Task t in tasks)
+            {
+                Tasks.Add(t);
+            }
         }
     }
 

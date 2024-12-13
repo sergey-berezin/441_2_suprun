@@ -8,16 +8,16 @@ namespace AvaloniaApplication.ViewModels;
 public class BackgroundProcess
 {
     private CancellationTokenSource _cts;
-    private Task _task;
+    private System.Threading.Tasks.Task _task;
     public bool IsRunning => _task != null && !_cts.Token.IsCancellationRequested;
     private MainWindowViewModel _viewModel;
     private Action _drawRectanglesClick;
-    public async Task Start(MainWindowViewModel viewModel, Action drawRectanglesClick)
+    public async System.Threading.Tasks.Task Start(MainWindowViewModel viewModel, Action drawRectanglesClick)
     {
         _cts = new CancellationTokenSource();
         _viewModel = viewModel;
         _drawRectanglesClick = drawRectanglesClick;
-        _task = Task.Factory.StartNew(async () =>
+        _task = System.Threading.Tasks.Task.Factory.StartNew(async () =>
         {
             try
             {
@@ -34,7 +34,7 @@ public class BackgroundProcess
 
     }
 
-    private async Task ProcessButtonClick(CancellationToken token)
+    private async System.Threading.Tasks.Task ProcessButtonClick(CancellationToken token)
     {
         Console.WriteLine("Кнопка нажата в фоновом процессе");
         int count = 0;
@@ -61,7 +61,7 @@ public class BackgroundProcess
             }
 
             Console.WriteLine($"{count}, {area}");
-            await Task.Delay(100);
+            await System.Threading.Tasks.Task.Delay(100);
         }
 
         Stop();
